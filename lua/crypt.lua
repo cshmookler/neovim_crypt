@@ -33,7 +33,7 @@ local get_file = function()
     local name = vim.api.nvim_buf_get_name(0);
 
     -- Verify that the buffer name is a file path and not "term://" or "".
-    if not vim.fn.filereadable(name) then
+    if vim.fn.filereadable(name) == 0 then
         error("This file must be written to the filesystem to be encrypted.")
         return nil
     end
