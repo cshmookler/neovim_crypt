@@ -59,7 +59,7 @@ end
 --- @param file string The path to the file to encrypt.
 --- @param password string The password to encrypt the file with.
 local encrypt = function(file, password)
-    -- Extract the data from the given file, encrypt it with salted AES-256, encode the result in base64, and write the output to a temporary file.
+    -- Extract the data from the given file, encrypt it with AES-256, and overwrite the original file with the encrypted data.
     -- The password is given through stdin so other programs cannot see it.
 
     --@type string
@@ -93,7 +93,7 @@ end
 --- @param file string The path to the file to decrypt.
 --- @param password string The password to decrypt the file with.
 local decrypt = function(file, password)
-    -- Extract the data from the given file, decode the data from base64, and decrypt the result with AES-256.
+    -- Extract the data from the given file, decrypt it with AES-256, and overwrite the original file with the decrypted data.
     -- The password is given through stdin so other programs cannot see it.
 
     local temp_file, success = call({ "mktemp", "--quiet" })
