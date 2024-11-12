@@ -1,14 +1,14 @@
-# **neovim_crypt**
+## **neovim_crypt**
 
 A Neovim plugin for encrypting, securely viewing, and decrypting files on Linux.
 
-## Install with [Lazy.nvim](https://github.com/folke/lazy.nvim)
+### Install with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
-{ "cshmookler/neovim_encrypt", opts = {} },
+{ "cshmookler/neovim_crypt", opts = {} },
 ```
 
-## **TODO**
+### **TODO**
 
 - [X] file encryption
 - [ ] secure viewer
