@@ -1,4 +1,4 @@
- **neovim_crypt**
+# **neovim_crypt**
 
 A Neovim plugin for encrypting, securely viewing, and decrypting files on Linux.
 
