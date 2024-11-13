@@ -1,7 +1,7 @@
 local crypt = require("crypt")
 
 vim.api.nvim_create_user_command("Encrypt", function()
-    local file = crypt.get_file()
+    local file = crypt.get_buffer_path(0)
     if file == nil then
         return
     end
@@ -15,7 +15,7 @@ vim.api.nvim_create_user_command("Encrypt", function()
 end, {})
 
 vim.api.nvim_create_user_command("Decrypt", function()
-    local file = crypt.get_file()
+    local file = crypt.get_buffer_path(0)
     if file == nil then
         return
     end

@@ -43,11 +43,12 @@ TempDir = {
 }
 
 --- Get the path to the current buffer if it exists on the filesystem.
+--- @param bufnr integer The buffer number to get the path to (0 = current buffer).
 --- @return string|nil file The path to the current buffer on the filesystem or nil if it does not exist.
-M.get_file = function()
+M.get_buffer_path = function(bufnr)
     -- Get the name of the current buffer using the Neovim API.
     --- @type string
-    local name = vim.api.nvim_buf_get_name(0);
+    local name = vim.api.nvim_buf_get_name(bufnr);
 
     -- Verify that the buffer name is a file path and not "term://" or "".
     if vim.fn.filereadable(name) == 0 then
