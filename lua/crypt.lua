@@ -10,26 +10,41 @@ end
 --- @return string stdout The data written to stdout during execution.
 --- @return boolean success True if execution succeeded and false otherwise.
 local call = function(command, stdin)
-    --@type vim.SystemObj
-    local process = vim.system(command, { stdin = stdin })
+    --- @type string
+    local output = vim.fn.system(command, stdin);
 
-    --@type vim.SystemCompleted
-    local result = process:wait()
+    -- Remove a trailing '\n' character (if present).
+    output = output:gsub("\n$", "");
 
-    --@type boolean
-    local success = (result.code == 0)
+    --- @type boolean
+    local success = (vim.v.shell_error == 0)
 
     if not success then
-        error(result.stderr)
+        error(output)
     end
 
-    return result.stdout, success
+    return output, success
 end
+
+TempDir = {
+    path = nil,
+    exists = false,
+    create = function(self)
+        self.path, self.exists = call({ "mktemp", "--directory" })
+        return self
+    end,
+    destroy = function(self)
+        if self.path ~= nil then
+            call({ "rm", "-r", self.path })
+        end
+    end,
+}
 
 --- Get the path to the current buffer if it exists on the filesystem.
 --- @return string|nil file The path to the current buffer on the filesystem or nil if it does not exist.
 local get_file = function()
     -- Get the name of the current buffer using the Neovim API.
+    --- @type string
     local name = vim.api.nvim_buf_get_name(0);
 
     -- Verify that the buffer name is a file path and not "term://" or "".
@@ -45,6 +60,7 @@ end
 --- @return string|nil password The password provided by the user or nil if nothing was given.
 local get_password = function()
     -- Prompt the user to enter their password.
+    --- @type string
     local password = vim.fn.inputsecret({ prompt = "Password: " })
 
     if password == "" then
@@ -62,29 +78,35 @@ local encrypt = function(file, password)
     -- Extract the data from the given file, encrypt it with AES-256, and overwrite the original file with the encrypted data.
     -- The password is given through stdin so other programs cannot see it.
 
-    --@type string
-    local temp_file, success = call({ "mktemp", "--quiet" })
-    if not success then
+    -- GPG cannot overwrite the input file, so a temporary output file must be created.
+    -- This output file cannot already exist and must be created by GPG.
+    -- To ensure that the temporary file does not exist and does not conflict with any other temporary files, create a temporary directory and allow GPG to write output to that directory.
+    local temp_dir = TempDir:create()
+    if not temp_dir.exists then
         return nil
     end
 
+    --- @type string
+    local temp_file = temp_dir.path .. "/tmp"
+
+    --- @type boolean
+    local success
     _, success = call(
         { "gpg", "--batch", "--symmetric", "--cipher-algo", "AES256", "--no-symkey-cache", "--output", temp_file,
             "--passphrase-fd", "0", file },
         password)
     if not success then
+        temp_dir:destroy()
         return nil
     end
 
-    _, success = call({ "mv", "--force", temp_file, file })
+    _, success = call({ "cp", temp_file, file })
     if not success then
+        temp_dir:destroy()
         return nil
     end
 
-    _, success = call({ "rm", "--force", temp_file })
-    if not success then
-        return nil
-    end
+    temp_dir:destroy()
 
     vim.cmd("edit!")
 end
@@ -96,27 +118,34 @@ local decrypt = function(file, password)
     -- Extract the data from the given file, decrypt it with AES-256, and overwrite the original file with the decrypted data.
     -- The password is given through stdin so other programs cannot see it.
 
-    local temp_file, success = call({ "mktemp", "--quiet" })
-    if not success then
+    -- GPG cannot overwrite the input file, so a temporary output file must be created.
+    -- This output file cannot already exist and must be created by GPG.
+    -- To ensure that the temporary file does not exist and does not conflict with any other temporary files, create a temporary directory and allow GPG to write output to that directory.
+    local temp_dir = TempDir:create()
+    if not temp_dir.exists then
         return nil
     end
 
+    --- @type string
+    local temp_file = temp_dir.path .. "/tmp"
+
+    --- @type boolean
+    local success
     _, success = call(
         { "gpg", "--batch", "--decrypt", "--output", temp_file, "--passphrase-fd", "0", file },
         password)
     if not success then
+        temp_dir:destroy()
         return nil
     end
 
     _, success = call({ "mv", "--force", temp_file, file })
     if not success then
+        temp_dir:destroy()
         return nil
     end
 
-    _, success = call({ "rm", "--force", temp_file })
-    if not success then
-        return nil
-    end
+    temp_dir:destroy()
 
     vim.cmd("edit!")
 end
