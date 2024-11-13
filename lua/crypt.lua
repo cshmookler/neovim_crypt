@@ -7,7 +7,7 @@ end
 --- Execute an external program and return its output and success status.
 --- @param command string[] The command to execute.
 --- @param stdin string|nil Data passed to stdin during program execution.
---- @return string stdout The data written to stdout during execution.
+--- @return string output The data written to stdout and stderr during execution.
 --- @return boolean success True if execution succeeded and false otherwise.
 local call = function(command, stdin)
     --- @type string
