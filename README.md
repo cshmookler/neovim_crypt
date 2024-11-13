@@ -1,6 +1,6 @@
 ## **neovim_crypt**
 
-A Neovim plugin for encrypting, securely viewing, and decrypting files on Linux.
+A Neovim plugin for encrypting and decrypting files on Linux.
 
 ### Install with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -11,5 +11,4 @@ A Neovim plugin for encrypting, securely viewing, and decrypting files on Linux.
 ### **TODO**
 
 - [X] file encryption
-- [ ] secure viewer
 - [X] file decryption
