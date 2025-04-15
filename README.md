@@ -19,4 +19,4 @@ A Neovim plugin for encrypting and decrypting files on Linux.  Uses the GPG impl
 
 - [X] file encryption
 - [X] file decryption
-- [ ] Ask for confirmation if there are unsaved changes
+- [X] Ask for confirmation if there are unsaved changes

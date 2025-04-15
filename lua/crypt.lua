@@ -59,6 +59,17 @@ M.get_buffer_path = function(bufnr)
     return name
 end
 
+--- Return true if the current buffer has unsaved changes and false if the contents of the current buffer have been saved to the filesystem.
+--- @param bufnr integer The buffer number to get the status of (0 = current buffer).
+--- @return boolean modified The modified status of the current buffer.
+M.buffer_is_modified = function(bufnr)
+    -- Get the modified status of the current buffer using the Neovim API.
+    --- @type boolean
+    local modified = vim.api.nvim_buf_get_option(bufnr, 'modified');
+
+    return modified
+end
+
 --- Get a password from the user.
 --- @return string|nil password The password provided by the user or nil if nothing was given.
 M.get_password = function()
