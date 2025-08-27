@@ -88,6 +88,7 @@ end
 --- Encrypt a given file with a given password.
 --- @param file string The path to the file to encrypt.
 --- @param password string The password to encrypt the file with.
+--- @return boolean success True if encryption succeeded and false otherwise.
 M.encrypt = function(file, password)
     -- Extract the data from the given file, encrypt it with AES-256, and overwrite the original file with the encrypted data.
     -- The password is given through stdin so other programs cannot see it.
@@ -97,7 +98,7 @@ M.encrypt = function(file, password)
     -- To ensure that the temporary file does not exist and does not conflict with any other temporary files, create a temporary directory and allow GPG to write output to that directory.
     local temp_dir = TempDir:create()
     if not temp_dir.exists then
-        return nil
+        return false
     end
 
     --- @type string
@@ -111,23 +112,25 @@ M.encrypt = function(file, password)
         password)
     if not success then
         temp_dir:destroy()
-        return nil
+        return false
     end
 
     _, success = call({ "cp", temp_file, file })
     if not success then
         temp_dir:destroy()
-        return nil
+        return false
     end
 
     temp_dir:destroy()
 
     vim.cmd("edit!")
+    return true
 end
 
 --- Decrypt a given file with a given password.
 --- @param file string The path to the file to decrypt.
 --- @param password string The password to decrypt the file with.
+--- @return boolean success True if decryption succeeded and false otherwise.
 M.decrypt = function(file, password)
     -- Extract the data from the given file, decrypt it with AES-256, and overwrite the original file with the decrypted data.
     -- The password is given through stdin so other programs cannot see it.
@@ -137,7 +140,7 @@ M.decrypt = function(file, password)
     -- To ensure that the temporary file does not exist and does not conflict with any other temporary files, create a temporary directory and allow GPG to write output to that directory.
     local temp_dir = TempDir:create()
     if not temp_dir.exists then
-        return nil
+        return false
     end
 
     --- @type string
@@ -150,18 +153,19 @@ M.decrypt = function(file, password)
         password)
     if not success then
         temp_dir:destroy()
-        return nil
+        return false
     end
 
     _, success = call({ "mv", "--force", temp_file, file })
     if not success then
         temp_dir:destroy()
-        return nil
+        return false
     end
 
     temp_dir:destroy()
 
     vim.cmd("edit!")
+    return true
 end
 
 return M
